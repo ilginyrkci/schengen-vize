@@ -7,7 +7,9 @@ import SearchForm from '@/app/components/SearchForm';
 import Dashboard from '@/app/components/Dashboard';
 import Features from '@/app/components/Features';
 import HowItWorks from '@/app/components/HowItWorks';
-import FAQ from '@/app/components/FAQ'
+import FAQ from '@/app/components/FAQ';
+import Pricing from '@/app/components/Pricing';
+import Testimonials from '@/app/components/Testimonials';
 import Footer from '@/app/components/Footer';
 
 // StatCard - İstatistik parçası
@@ -73,6 +75,8 @@ export default function LandingPage() {
         {/* Bot Nasıl Çalışır? (Simülasyonlu Bölüm) */}
         <HowItWorks />
         <FAQ />
+        <Pricing />
+        <Testimonials />
       </main>
 
       {/* Modern Footer */}

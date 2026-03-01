@@ -30,6 +30,10 @@ export default function FAQ() {
       question: "Arel Pass tam olarak nasıl çalışıyor?",
       answer: "Arel Pass, belirlediğiniz kriterlere göre vize randevu sistemlerini saniyeler içinde tarayan bir otomasyondur. Randevu açıldığı an size Telegram üzerinden direkt randevu linkini gönderir."
     },
+     {
+      question: "Premium üyeliğin avantajlaı nelerdi?",
+      answer: "Premium üyeler sınırsız sayıda ülke için anlık bildirimler alır, daha sık arama yapabilir ve randevu bulma şanslarını en üst düzeye çıkarır. Ayrıca gelişmiş filtreleme ve öncelikli destek gibi ek özelliklere de erişirler."
+    },
     {
       question: "Randevu almayı garanti ediyor musunuz?",
       answer: "Sistemimiz randevu bulma şansınızı %90'ın üzerine çıkarır, ancak randevu alımı konsolosluk kotalarına bağlıdır. Biz, açılan kontenjanı herkesten önce görmenizi sağlıyoruz."
