@@ -1,63 +1,103 @@
 "use client";
 import React, { useState } from 'react';
 
-const FAQItem = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+// Tek bir FAQ öğesi
+const FAQItem = ({ question, answer, isOpen, onClick }) => {
   return (
-    <div className="border-b border-white/5">
+    <div className={`border-b border-white/5 last:border-0 transition-all duration-300 ${isOpen ? 'bg-white/[0.02]' : ''}`}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-6 flex items-center justify-between text-left hover:text-emerald-400 transition-colors"
+        onClick={onClick}
+        className="w-full py-6 px-4 flex items-center justify-between text-left group transition-all"
       >
-        <span className="text-lg font-medium text-white/90">{question}</span>
-        <span className={`text-2xl transition-transform duration-300 ${isOpen ? 'rotate-45 text-emerald-500' : 'text-gray-500'}`}>
-          +
+        <span className={`text-lg font-medium transition-colors duration-300 ${
+          isOpen ? 'text-emerald-400' : 'text-white/90 group-hover:text-emerald-400'
+        }`}>
+          {question}
         </span>
+        <div className={`relative flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-500 ${
+          isOpen ? 'border-emerald-500 bg-emerald-500/10 rotate-180' : 'border-white/10 group-hover:border-emerald-500/50'
+        }`}>
+          <span className={`text-xl font-light transition-colors ${isOpen ? 'text-emerald-500' : 'text-gray-500'}`}>
+            {isOpen ? '−' : '+'}
+          </span>
+        </div>
       </button>
-      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-40 pb-6' : 'max-h-0'}`}>
-        <p className="text-gray-500 text-sm leading-relaxed">
-          {answer}
-        </p>
+      
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-4 pb-6">
+          <p className="text-white/60 text-base leading-relaxed max-w-2xl">
+            {answer}
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
+// FAQ listesi
 export default function FAQ() {
+  const [openIndex, setOpenIndex] = useState(null);
+
   const faqs = [
     {
-      question: "Arel Pass tam olarak nasıl çalışıyor?",
-      answer: "Arel Pass, belirlediğiniz kriterlere göre vize randevu sistemlerini saniyeler içinde tarayan bir otomasyondur. Randevu açıldığı an size Telegram üzerinden direkt randevu linkini gönderir."
+      question: "Visa Pass tam olarak nasıl çalışıyor?",
+      answer:
+        "Visa Pass, belirlediğiniz kriterlere göre vize randevu sistemlerini saniyeler içinde tarayan bir otomasyondur. Uygun randevu bulunduğu an size bildirim göndererek vakit kaybetmeden başvuru yapmanızı sağlar."
     },
-     {
-      question: "Premium üyeliğin avantajlaı nelerdi?",
-      answer: "Premium üyeler sınırsız sayıda ülke için anlık bildirimler alır, daha sık arama yapabilir ve randevu bulma şanslarını en üst düzeye çıkarır. Ayrıca gelişmiş filtreleme ve öncelikli destek gibi ek özelliklere de erişirler."
+    {
+      question: "Premium üyeliğin avantajları nelerdir?",
+      answer:
+        "Premium üyeler sınırsız sayıda ülke için anlık bildirimler alır, saniyelerle yarışan randevu sisteminde öncelikli tarama sırasına sahip olurlar. Ayrıca Telegram botu üzerinden anlık veri akışına erişirler."
     },
     {
       question: "Randevu almayı garanti ediyor musunuz?",
-      answer: "Sistemimiz randevu bulma şansınızı %90'ın üzerine çıkarır, ancak randevu alımı konsolosluk kotalarına bağlıdır. Biz, açılan kontenjanı herkesten önce görmenizi sağlıyoruz."
+      answer:
+        "Sistemimiz randevu bulma şansınızı %90'ın üzerine çıkarır. Biz, konsolosluklar tarafından açılan gizli veya anlık kontenjanları herkesten önce yakalayıp size haber veriyoruz."
     },
     {
       question: "Hangi ülkeler için destek veriyorsunuz?",
-      answer: "Başta Fransa, Hollanda, İtalya, Almanya ve Avusturya olmak üzere tüm Schengen bölgesi ve ABD vize randevuları için aktif takip yapmaktayız."
+      answer:
+        "Başta Almanya, Fransa, Hollanda, İtalya ve Yunanistan olmak üzere tüm Schengen bölgesi ülkeleri ve ABD/İngiltere randevuları için aktif takip yapmaktayız."
     },
     {
-      question: "Aynı anda birden fazla şehir için takip yapabilir miyim?",
-      answer: "Evet, gelişmiş panelimiz üzerinden farklı şehirler ve tarih aralıkları için eş zamanlı bildirimler kurabilirsiniz."
+      question: "Birden fazla şehir için takip yapabilir miyim?",
+      answer:
+        "Kesinlikle. Gelişmiş panelimiz üzerinden örneğin hem İstanbul hem Ankara hem de İzmir'deki uygunlukları aynı anda tek bir alarm ile takip edebilirsiniz."
     }
   ];
 
   return (
-    <section className="py-32 max-w-3xl mx-auto px-6">
-      <div className="text-center mb-16">
-        <h2 className="text-emerald-500 font-mono text-xs tracking-[0.4em] uppercase mb-4">Destek</h2>
-        <h3 className="text-4xl font-black text-white">Merak Edilenler</h3>
+    <section className="py-24 max-w-4xl mx-auto px-6">
+      <div className="text-center mb-12">
+        <h2 className="text-emerald-500 font-mono text-sm tracking-[0.3em] uppercase mb-3">
+          Sıkça Sorulan Sorular
+        </h2>
+        <h3 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+          Aklınıza Takılanlar
+        </h3>
       </div>
-      <div className="bg-[#0b1120]/20 rounded-[2.5rem] p-8 border border-white/5 backdrop-blur-sm">
+      
+      <div className="bg-[#0b1120]/40 rounded-[2rem] border border-white/10 backdrop-blur-md overflow-hidden shadow-2xl">
         {faqs.map((faq, index) => (
-          <FAQItem key={index} {...faq} />
+          <FAQItem
+            key={index}
+            {...faq}
+            isOpen={openIndex === index}
+            onClick={() =>
+              setOpenIndex(openIndex === index ? null : index)
+            }
+          />
         ))}
+      </div>
+
+      <div className="mt-10 text-center">
+        <p className="text-white/40 text-sm">
+          Başka bir sorunuz mu var? <a href="#" className="text-emerald-500 hover:underline">Destek ekibimizle iletişime geçin.</a>
+        </p>
       </div>
     </section>
   );

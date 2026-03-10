@@ -1,86 +1,123 @@
-import React from 'react';
-import './globals.css'; 
+"use client"
 
-// Bileşenleri Import Et
-import Hero from '@/app/components/Hero';
-import SearchForm from '@/app/components/SearchForm';
-import Dashboard from '@/app/components/Dashboard';
-import Features from '@/app/components/Features';
-import HowItWorks from '@/app/components/HowItWorks';
-import FAQ from '@/app/components/FAQ';
-import Pricing from '@/app/components/Pricing';
-import Testimonials from '@/app/components/Testimonials';
-import Footer from '@/app/components/Footer';
+import React from "react";
+import Link from "next/link";
+import "./globals.css";
 
-// StatCard - İstatistik parçası
+// Bileşenlerin Importu
+import Hero from "@/app/components/Hero";
+import SearchForm from "@/app/components/SearchForm";
+import Dashboard from "@/app/components/Dashboard";
+import Features from "@/app/components/Features";
+import HowItWorks from "@/app/components/HowItWorks";
+import FAQ from "@/app/components/FAQ";
+import Pricing from "@/app/components/Pricing";
+import Testimonials from "@/app/components/Testimonials";
+import ScrollToTop from "@/app/components/ScrollToTop";
+import Footer from "@/app/components/Footer";
+
+// İstatistik Kartı
 const StatCard = ({ value, label, colorClass }) => (
-  <div className="group bg-[#0b1120]/40 border border-emerald-900/30 p-8 rounded-3xl text-center backdrop-blur-md hover:border-emerald-500/50 transition-all shadow-lg hover:shadow-emerald-500/10">
-    <h3 className={`text-4xl font-black mb-1 ${colorClass}`}>{value}</h3>
-    <p className="text-gray-500 mt-2 text-[10px] uppercase tracking-[0.2em] font-bold">{label}</p>
+  <div className="group bg-[#0b1120]/40 border border-white/5 p-8 rounded-[2.5rem] text-center backdrop-blur-xl hover:border-emerald-500/30 transition-all duration-500 relative overflow-hidden">
+    <div className={`absolute -inset-1 opacity-0 group-hover:opacity-10 transition-opacity blur-2xl rounded-full ${colorClass.replace('text', 'bg')}`} />
+    <h3 className={`text-5xl font-black mb-2 tracking-tighter transition-transform group-hover:scale-110 duration-500 ${colorClass}`}>
+      {value}
+    </h3>
+    <p className="text-white/30 text-[10px] uppercase tracking-[0.3em] font-black italic">
+      {label}
+    </p>
   </div>
 );
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-emerald-500/30">
-      
-      {/* Arka Plan Glow Efektleri */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-emerald-900/15 blur-[140px] rounded-full" />
-        <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-blue-900/15 blur-[120px] rounded-full" />
+    <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-emerald-500/30 overflow-x-hidden">
+
+      {/* DİNAMİK ARKA PLAN IŞIKLARI */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[700px] h-[700px] bg-emerald-500/10 blur-[150px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-500/10 blur-[150px] rounded-full" />
       </div>
 
-      {/* NAVBAR */}
-      <nav className="flex items-center justify-between px-8 py-8 max-w-7xl mx-auto border-b border-white/5 backdrop-blur-sm sticky top-0 z-50">
-        <div className="text-2xl font-bold flex items-center gap-3">
-          <div className="w-11 h-11 bg-gradient-to-br from-emerald-400 to-cyan-600 rounded-xl flex items-center justify-center text-sm font-black text-black shadow-lg shadow-emerald-500/20">AP</div>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-300 font-extrabold tracking-tighter uppercase">Arel Pass</span>
+      {/* --- NAVBAR --- */}
+      <nav className="relative z-[100] w-full border-b border-white/5 bg-transparent px-6 md:px-12 py-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          {/* Logo Section */}
+          <Link href="/" className="flex items-center gap-4 group">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center text-xs font-black text-[#0b1120] shadow-lg shadow-emerald-500/20 group-hover:rotate-12 transition-transform">
+              VP
+            </div>
+            <span className="text-2xl font-black tracking-tighter italic uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+              Visa Pass
+            </span>
+          </Link>
+
+          {/* Menü Linkleri */}
+          <div className="hidden lg:flex items-center gap-12 text-white/40 text-[11px] font-black uppercase tracking-[0.3em]">
+            <a href="#features" className="hover:text-emerald-400 transition-all hover:tracking-[0.4em]">Özellikler</a>
+            <a href="#system" className="hover:text-emerald-400 transition-all hover:tracking-[0.4em]">Sistem</a>
+            <a href="#pricing" className="hover:text-emerald-400 transition-all hover:tracking-[0.4em]">Planlar</a>
+            <a href="#support" className="hover:text-emerald-400 transition-all hover:tracking-[0.4em]">Destek</a>
+          </div>
+
+          {/* CTA Butonu - ARTIK ÇALIŞIYOR */}
+          <Link href="/login">
+            <button className="bg-emerald-500 text-[#0b1120] px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer">
+              Giriş Yap
+            </button>
+          </Link>
         </div>
-        <div className="hidden md:flex items-center gap-10 text-gray-400 text-[11px] font-bold uppercase tracking-[0.2em]">
-          <a href="#" className="hover:text-emerald-400 transition-colors">Özellikler</a>
-          <a href="#" className="hover:text-emerald-400 transition-colors">Sistem</a>
-          <a href="#" className="hover:text-emerald-400 transition-colors">Destek</a>
-        </div>
-        <button className="bg-emerald-500 text-black px-8 py-2.5 rounded-full text-xs font-black hover:bg-emerald-400 transition-all active:scale-95 shadow-lg shadow-emerald-500/20 uppercase tracking-widest">
-          BAŞLA
-        </button>
       </nav>
 
-      <main className="pb-40">
-        {/* Giriş Bölümü */}
-        <Hero />
+      {/* --- ANA İÇERİK --- */}
+      <main className="relative z-10">
+        <section className="relative">
+          <Hero />
+        </section>
 
-        {/* Form Bölümü */}
-        <div className="mb-32 max-w-4xl mx-auto px-6 relative group">
-          <div className="absolute -inset-1 bg-emerald-500/20 blur-xl opacity-0 group-hover:opacity-100 transition duration-1000"></div>
-          <div className="relative bg-[#0b1120]/80 p-10 rounded-[2.5rem] border border-white/10 backdrop-blur-2xl shadow-3xl">
-              <h2 className="text-[10px] uppercase tracking-[0.5em] font-black mb-10 text-emerald-500/60 text-center">Randevu Arama Motoru</h2>
-              <SearchForm />
+        <section className="relative z-20 -mt-20 mb-32 max-w-5xl mx-auto px-6 group">
+          <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="relative">
+            <SearchForm />
           </div>
-        </div>
-        {/* Final İstatistikler */}
-        <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto px-6">
-          <StatCard value="764+" label="Aktif Kullanıcı" colorClass="text-emerald-400" />
-          <StatCard value="1.530" label="Onaylı Randevu" colorClass="text-cyan-400" />
-          <StatCard value="%99" label="Başarı Oranı" colorClass="text-emerald-500" />
-          <StatCard value="24/7" label="Hızlı Tarama" colorClass="text-cyan-500" />
-        </div>
+        </section>
 
-        {/* Dashboard: Canlı Akış */}
-        <Dashboard />
-        
-        {/* Bento Grid Özellikler (Etkileyici Bölüm) */}
-        <Features />
+        <section className="py-10 mb-32">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto px-6">
+            <StatCard value="764+" label="Aktif Kullanıcı" colorClass="text-white" />
+            <StatCard value="1.530" label="Onaylı Randevu" colorClass="text-emerald-400" />
+            <StatCard value="%99" label="Başarı Oranı" colorClass="text-white" />
+            <StatCard value="142ms" label="Tarama Hızı" colorClass="text-emerald-500" />
+          </div>
+        </section>
 
-        {/* Bot Nasıl Çalışır? (Simülasyonlu Bölüm) */}
-        <HowItWorks />
-        <FAQ />
-        <Pricing />
-        <Testimonials />
+        <section id="system" className="mb-40 scroll-mt-32">
+          <Dashboard />
+        </section>
+
+        <section id="features" className="scroll-mt-32 mb-40">
+          <HowItWorks />
+          <div className="mt-20">
+            <Features />
+          </div>
+        </section>
+
+        <section className="mb-40">
+          <Testimonials />
+        </section>
+
+        <section id="pricing" className="scroll-mt-32 mb-40">
+          <Pricing />
+        </section>
+
+        <section id="support" className="scroll-mt-32 mb-40">
+          <FAQ />
+        </section>
       </main>
 
-      {/* Modern Footer */}
       <Footer />
+      <ScrollToTop />
     </div>
   );
 }
