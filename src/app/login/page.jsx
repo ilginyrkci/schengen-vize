@@ -6,28 +6,67 @@ import Link from 'next/link';
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true); // Giriş mi Kayıt mı kontrolü
+  const [isLogin, setIsLogin] = useState(true);
 
-  const handleSubmit = (e) => {
+  // Form verilerini tutmak için state ekledik 
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simülasyon: Başarılı işlem sonrası Dashboard'a yönlendirme
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 1500);
+    // Backend endpointimizi belirliyoruz
+    const endpoint = isLogin ? "/api/login" : "/api/register";
+    
+    try {
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (isLogin) {
+          // Giriş başarılıysa userId'yi sakla ki randevu alırken kullanalım
+          localStorage.setItem("userId", data.user_id);
+          localStorage.setItem("userEmail", data.email);
+          localStorage.setItem("fullName", data.full_name || data.fullName);
+          router.push('/dashboard');
+        } else {
+          // Kayıt başarılıysa direkt girişe atalım
+          alert("Kayıt başarılı! Şimdi giriş yapabilirsin.");
+          setIsLogin(true);
+          setLoading(false);
+        }
+      } else {
+        alert(data.detail || "Bir hata oluştu!");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Bağlantı hatası:", error);
+      alert("Backend çalışmıyor olabilir, main.py'ı kontrol et!");
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#020617] text-white flex flex-col relative overflow-hidden selection:bg-emerald-500/30">
       
-      {/* 1. DİNAMİK ARKA PLAN */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-500/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* 2. NAVBAR */}
       <nav className="relative z-[100] w-full border-b border-white/5 bg-transparent px-6 md:px-12 py-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-4 group">
@@ -48,11 +87,9 @@ export default function LoginPage() {
         </div>
       </nav>
 
-      {/* 3. FORM KONTEYNERI */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-[#0b1120]/40 border border-white/10 backdrop-blur-3xl p-10 rounded-[3rem] shadow-2xl relative">
           
-          {/* Başlık Bölümü */}
           <div className="flex flex-col items-center mb-10 text-center">
             <h1 className="text-3xl font-black tracking-tighter italic uppercase mb-2">
               {isLogin ? "Giriş Yap" : "Kayıt Ol"}
@@ -62,15 +99,17 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-black ml-2 leading-none italic">Ad Soyad</label>
                 <input 
                   type="text" 
+                  name="fullName"
                   required 
-                  placeholder="Ilgın Habibe Yürekçi" 
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Ahmet Erdoğan" 
                   className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-emerald-500/50 transition-all text-sm placeholder:text-white/10" 
                 />
               </div>
@@ -80,7 +119,10 @@ export default function LoginPage() {
               <label className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-black ml-2 leading-none italic">E-Posta</label>
               <input 
                 type="email" 
+                name="email"
                 required 
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="isim@mail.com" 
                 className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-emerald-500/50 transition-all text-sm placeholder:text-white/10" 
               />
@@ -90,7 +132,10 @@ export default function LoginPage() {
               <label className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-black ml-2 leading-none italic">Şifre</label>
               <input 
                 type="password" 
+                name="password"
                 required 
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="••••••••" 
                 className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-emerald-500/50 transition-all text-sm placeholder:text-white/10" 
               />
@@ -110,7 +155,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Toggle Butonu (Giriş/Kayıt Arası Geçiş) */}
           <div className="mt-8 text-center">
             <button 
               onClick={() => setIsLogin(!isLogin)}

@@ -69,7 +69,7 @@ export default function Footer() {
             <div className="flex items-center justify-center md:justify-start gap-2 group cursor-default">
                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,1)]"></span>
                <p className="text-[10px] uppercase tracking-widest text-emerald-500/40 font-black group-hover:text-emerald-500/60 transition-colors">
-                 Designed & Coded by Ilgın Habibe Yürekçi
+                 Designed by Ilgın Habibe Yürekçi & Coded by Ahmet Erdoğan
                </p>
             </div>
           </div>

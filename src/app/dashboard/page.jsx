@@ -1,10 +1,43 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Dashboard from '@/app/components/Dashboard'; 
 import SearchForm from '@/app/components/SearchForm';
 import Link from 'next/link';
 
 export default function UserDashboard() {
+  // başlangıçta boş bırakıyoruz ki yüklenince tak diye gelsin
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    // Tarayıcı hafızasındaki (localStorage) tüm olası isim anahtarlarını kontrol ediyoruz
+    // Backend'de gönderdiğimiz tüm varyasyonları buraya ekledik
+    const names = [
+      localStorage.getItem("full_name"),
+      localStorage.getItem("fullName"),
+      localStorage.getItem("name"),
+      localStorage.getItem("ad_soyad")
+    ];
+
+    // Dizideki ilk dolu olan değeri buluyoruz
+    const foundName = names.find(n => n && n !== "undefined" && n !== "null");
+
+    if (foundName) {
+      setUserName(foundName);
+    } else {
+      setUserName("MİSAFİR KULLANICI");
+    }
+  }, []);
+
+  // ilk ismi alırken hata payını sıfıra indiriyoruz
+  const getFirstName = () => {
+    if (!userName || userName === "MİSAFİR KULLANICI" || userName === "YÜKLENİYOR...") {
+      return "Misafir";
+    }
+    return userName.split(' ')[0];
+  };
+
+  const firstName = getFirstName();
+
   return (
     <div className="min-h-screen bg-[#020617] text-white selection:bg-emerald-500/30">
       
@@ -13,9 +46,16 @@ export default function UserDashboard() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center text-[10px] font-black text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]">VP</div>
-            <span className="text-sm font-black uppercase tracking-widest italic">Ilgın Habibe Yürekçi</span>
+            {/* Navigasyondaki isim alanı */}
+            <span className="text-sm font-black uppercase tracking-widest italic">
+              {userName || "YÜKLENİYOR..."}
+            </span>
           </div>
-          <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-red-500 transition-colors">
+          <Link 
+            href="/" 
+            onClick={() => localStorage.clear()} 
+            className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-red-500 transition-colors"
+          >
             Oturumu Kapat
           </Link>
         </div>
@@ -26,7 +66,9 @@ export default function UserDashboard() {
         {/* Karşılama Alanı */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-4xl font-black italic uppercase tracking-tighter">Hoş Geldin, Ilgın</h1>
+            <h1 className="text-4xl font-black italic uppercase tracking-tighter">
+              Hoş Geldin, {firstName}
+            </h1>
             <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
               Sistem Tarama Durumu: Aktif
