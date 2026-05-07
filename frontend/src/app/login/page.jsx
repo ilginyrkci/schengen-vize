@@ -1,61 +1,79 @@
-"use client";
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+"use client"; // Bu bileşenin doğrudan tarayıcıda (client-side) çalışacağını belirtir.
+import React, { useState } from 'react'; // Durum (state) yönetimi için useState hook'unu dahil ediyoruz.
+import { useRouter } from 'next/navigation'; // Giriş/Kayıt sonrası sayfalar arası geçiş yapmak için useRouter hook'u.
+import Link from 'next/link'; // Sayfayı yenilemeden diğer sayfalara geçiş sağlamak için Link bileşeni.
+import { toast } from 'react-hot-toast'; // Ekrana şık hata/başarı bildirimleri çıkarmak için kullandığımız kütüphane.
 
+// Giriş ve Kayıt İşlemlerinin Yapıldığı Ana Sayfa Bileşeni
 export default function LoginPage() {
-  const router = useRouter();
+  const router = useRouter(); // Yönlendirme motorunu başlatıyoruz.
+  
+  // Yüklenme durumunu takip etmek için state (Butona basıldığında butonu pasif yapmak için)
   const [loading, setLoading] = useState(false);
+  
+  // Ekranın "Giriş Yap" mı yoksa "Kayıt Ol" formunu mu göstereceğini belirleyen state
   const [isLogin, setIsLogin] = useState(true);
 
-  // Form verilerini tutmak için state ekledik 
+  // Form elemanlarının (Email, Şifre, Ad Soyad) anlık değerlerini tutan obje state'i
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     fullName: ''
   });
 
+  // İnput kutularına yazı yazıldıkça formData state'ini güncelleyen fonksiyon
   const handleChange = (e) => {
+    // Önceki formData verilerini kopyala, sonra sadece değişen input'u (e.target.name) yeni değerle (e.target.value) güncelle.
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Forma tıklandığında (Giriş veya Kayıt) çalışacak olan asıl fonksiyon
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault(); // Formun varsayılan davranışını (sayfayı yenilemeyi) engeller.
+    setLoading(true); // Yüklenme (loading) animasyonunu başlatır.
 
-    // Backend endpointimizi belirliyoruz
+    // Kullanıcı giriş mi yapıyor yoksa kayıt mı oluyor? Ona göre backend adresini seçiyoruz.
     const endpoint = isLogin ? "/api/login" : "/api/register";
     
     try {
+      // Backend sunucusuna (FastAPI) verileri POST metodu ile gönderiyoruz.
       const response = await fetch(`http://localhost:8000${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" }, // Verinin JSON formatında olduğunu belirtiriz.
+        body: JSON.stringify(formData), // State'teki objeyi JSON string'ine çevirip göndeririz.
       });
 
-      const data = await response.json();
+      const data = await response.json(); // Sunucudan dönen cevabı JSON olarak okuruz.
 
+      // Eğer sunucudan "200 OK" gibi başarılı bir yanıt dönerse:
       if (response.ok) {
         if (isLogin) {
-          // Giriş başarılıysa userId'yi sakla ki randevu alırken kullanalım
+          // Giriş işlemi başarılı olduysa:
+          // Kullanıcının ID, Email ve İsim bilgilerini tarayıcının hafızasına (localStorage) yazarız.
+          // Böylece sayfa yenilense bile kullanıcının giriş yaptığını hatırlayabiliriz.
           localStorage.setItem("userId", data.user_id);
           localStorage.setItem("userEmail", data.email);
           localStorage.setItem("fullName", data.full_name || data.fullName);
-          router.push('/dashboard');
+          
+          toast.success("Giriş başarılı!"); // Ekrana başarılı mesajı çıkartıyoruz.
+          router.push('/dashboard'); // Kullanıcıyı kendi paneline (Dashboard) yönlendiriyoruz.
         } else {
-          // Kayıt başarılıysa direkt girişe atalım
-          alert("Kayıt başarılı! Şimdi giriş yapabilirsin.");
-          setIsLogin(true);
-          setLoading(false);
+          // Kayıt işlemi başarılı olduysa:
+          toast.success("Kayıt başarılı! Şimdi giriş yapabilirsin.");
+          setIsLogin(true); // Formu tekrar "Giriş Yap" görünümüne çeviriyoruz.
+          setLoading(false); // Yükleniyor durumunu kapatıyoruz.
         }
       } else {
-        alert(data.detail || "Bir hata oluştu!");
-        setLoading(false);
+        // Sunucu hata fırlattıysa (Örneğin: "Bu email zaten kayıtlı" veya "Yanlış şifre")
+        toast.error(data.detail || "Bir hata oluştu!");
+        setLoading(false); // Yükleniyor durumunu kapat.
       }
     } catch (error) {
+      // Eğer sunucuya hiç bağlanılamazsa (Örneğin backend kapalıysa)
       console.error("Bağlantı hatası:", error);
-      alert("Backend çalışmıyor olabilir, main.py'ı kontrol et!");
+      toast.error("Backend çalışmıyor olabilir, main.py'ı kontrol et!");
       setLoading(false);
+
     }
   };
 

@@ -27,17 +27,31 @@ app.add_middleware(
 
 # --- KAYIT VE GİRİŞ SİSTEMİ ---
 
+from pydantic import BaseModel
+from typing import Optional
+
+class UserRegister(BaseModel):
+    email: str
+    password: str
+    fullName: Optional[str] = None
+    full_name: Optional[str] = None
+    name: Optional[str] = None
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
 @app.post("/api/register")
-def register_user(data: dict, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == data['email']).first()
+def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email == user_data.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Bu e-posta zaten kayıtlı!")
     
-    gelen_isim = data.get('full_name') or data.get('fullName') or data.get('name') or 'Bilinmeyen Kullanıcı'
+    gelen_isim = user_data.fullName or user_data.full_name or user_data.name or 'Bilinmeyen Kullanıcı'
     
     new_user = models.User(
-        email=data['email'],
-        hashed_password=data['password'],
+        email=user_data.email,
+        hashed_password=user_data.password,
         ad_soyad=gelen_isim 
     )
     db.add(new_user)
@@ -45,9 +59,9 @@ def register_user(data: dict, db: Session = Depends(get_db)):
     return {"status": "success", "message": "Kayıt başarılı!"}
 
 @app.post("/api/login")
-def login_user(data: dict, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == data['email']).first()
-    if not user or user.hashed_password != data['password']:
+def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == user_data.email).first()
+    if not user or user.hashed_password != user_data.password:
         raise HTTPException(status_code=401, detail="Hatalı e-posta veya şifre!")
     
     isim = getattr(user, 'ad_soyad', 'Değerli Kullanıcı')

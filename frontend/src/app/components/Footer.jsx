@@ -60,31 +60,18 @@ export default function Footer() {
         </div>
 
         {/* ALT KISIM: Telif ve İmzalar */}
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-10 text-center md:text-left">
+        <div className="pt-12 border-t border-white/5 flex flex-col items-center justify-center gap-10 text-center">
           
           <div className="space-y-2">
             <p className="text-[10px] uppercase tracking-[0.5em] font-black text-white/20">
               © 2026 VISA PASS — ALL RIGHTS RESERVED
             </p>
-            <div className="flex items-center justify-center md:justify-start gap-2 group cursor-default">
+            <div className="flex items-center justify-center gap-2 group cursor-default">
                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,1)]"></span>
                <p className="text-[10px] uppercase tracking-widest text-emerald-500/40 font-black group-hover:text-emerald-500/60 transition-colors">
                  Designed by Ilgın Habibe Yürekçi & Coded by Ahmet Erdoğan
                </p>
             </div>
-          </div>
-
-          {/* Sosyal Medya: Modern Border-Box Style */}
-          <div className="flex items-center gap-4">
-            {['LinkedIn', 'Github'].map((social) => (
-              <a 
-                key={social}
-                href="#"
-                className="px-6 py-2.5 rounded-xl border border-white/5 bg-white/[0.02] text-[10px] uppercase tracking-[0.2em] font-black text-white/30 hover:text-white hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all duration-500"
-              >
-                {social}
-              </a>
-            ))}
           </div>
 
         </div>

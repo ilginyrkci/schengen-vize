@@ -1,0 +1,70 @@
+# SCHENGEN BOT FRONTEND DOKÜMANTASYONU (DETAYLI KILAVUZ)
+
+Bu doküman, Schengen Bot projesinin kullanıcı arayüzü (frontend) mimarisini, dosya yapısını, veri akışını ve kullanılan teknolojilerin ne işe yaradığını kapsamlı bir şekilde açıklar. Bu belgeyi okuyarak projeyi anlamlandırabilir veya projeye yeni özellikler ekleyebilirsiniz.
+
+---
+
+## 1. KULLANILAN TEKNOLOJİLER VE AMAÇLARI
+
+*   **Next.js (App Router):** Sitenin genel iskeletidir. Next.js 13+ ile gelen "App Router" yapısını kullanır. Bu yapı, klasör isimlerine göre otomatik sayfa oluşturur (Örn: `app/login` klasörü `localhost:3000/login` sayfasını yaratır).
+*   **React.js (v18+):** Sayfaların ve bileşenlerin (components) yazıldığı kütüphanedir.
+*   **Tailwind CSS:** Tasarım motorumuzdur. Uzun CSS dosyaları yazmak yerine doğrudan HTML tagleri içine sınıf yazarak tasarım yapmamızı sağlar (Örn: `bg-red-500 rounded-lg`). 
+*   **React Hot Toast:** Kullanıcıya işlemin başarılı ya da başarısız olduğunu gösteren (ekranın sağ üstünde veya ortasında çıkan) şık açılır bildirim (alert) kutularıdır.
+*   **LocalStorage:** Kullanıcının giriş bilgisini (userId, email, fullName) tarayıcının hafızasında tutmaya yarar. Sayfa yenilense bile oturumun açık kalmasını sağlayan basit ve etkili bir veritabanıdır.
+
+---
+
+## 2. KLASÖR VE DOSYA MİMARİSİ (src/app)
+
+Tüm kodlar `src/app` dizini altındadır.
+
+### 2.1. Temel Yapı Dosyaları
+*   **`layout.jsx`**: Tüm sitenin "Kapsayıcı (Wrapper)" dosyasıdır. Bütün sayfalar bu dosyanın içine oturtulur. Tarayıcı dilinin `tr` olarak ayarlanması, yazı tiplerinin yüklenmesi ve `Toaster` (bildirimlerin çıkması) özellikleri bu dosyada tanımlıdır.
+*   **`page.jsx`**: Ana sayfadır (Landing Page / Ana Ekran). Sistemin ne işe yaradığını tanıtan bir vitrindir. Kullanıcı giriş yapmışsa onu "Dashboard'a" yönlendirir, yapmamışsa "Giriş Yap" butonunu gösterir.
+*   **`globals.css`**: Tailwind CSS'in çalışması için gereken kuralların tanımlandığı ve özel kaydırma çubuğu (scrollbar) gibi genel CSS kodlarının barındığı yerdir.
+
+### 2.2. Sayfa Klasörleri (Routing)
+*   **`/login` (`login/page.jsx`)**: Üye Girişi ve Kayıt Olma sayfası.
+    *   *Nasıl Çalışır?* Kullanıcı email ve şifresini yazar, "Giriş"e basar. Sistem arka plandaki Python API'sine (`/api/login`) istek atar. Bilgiler doğruysa dönen ID numarası tarayıcı hafızasına (`localStorage`) kaydedilir ve kullanıcı Dashboard'a postalanır.
+*   **`/dashboard` (`dashboard/page.jsx`)**: Sistemin Kontrol Panelidir.
+    *   *Güvenlik (Koruma):* Sayfa açılır açılmaz bir kod çalışır ve tarayıcı hafızasında `userId` olup olmadığına bakar. Eğer yoksa anında kullanıcıyı `/login` sayfasına geri atar.
+    *   *Tasarım:* "Bento Box" denilen modern ızgara stili ile tasarlanmıştır.
+
+### 2.3. Bileşenler (`/components`)
+Tekrar kullanılabilirlik için ayrıştırılmış kod bloklarıdır.
+
+*   **`SearchForm.jsx`**: Panelin kalbidir. Vize için gereken "Ülke", "Gidiş Dönüş Tarihleri", "Vize Türü" ve kişisel pasaport bilgileri buradan girilir. Form doldurulup "Gönder" dendiğinde verileri toplar ve Python sunucusundaki botu tetikler (`/api/tasks/vfs` veya `idata`).
+*   **`Dashboard.jsx`**: Terminal ekranı gibi çalışan log izleyicisidir. Backend'deki veritabanından aktif bot takiplerini çeker ve kullanıcının önüne "Bot tarıyor...", "Açık tarih bulundu" şeklinde listeler.
+*   **Arayüz Bileşenleri:** `Hero.jsx` (Ana sayfadaki devasa başlık alanı), `Features.jsx` (Özellikler kutuları), `Pricing.jsx` (Fiyat tabloları), `Footer.jsx` (En alt kısım). Bu dosyalar sadece görsel amaçlıdır, arka planla veri alışverişi yapmazlar.
+
+---
+
+## 3. FRONTEND - BACKEND İLETİŞİMİ (VERİ AKIŞI)
+
+Frontend'in asıl görevi, kullanıcının girdiği verileri arka plandaki FastAPI (Python) sunucusuna aktarmak ve oradan gelen cevabı ekrana basmaktır.
+
+Bu işlem `fetch` isimli JavaScript komutuyla yapılır.
+
+**Örnek Veri Akış Senaryosu (Yeni Takip Başlatma):**
+1. Kullanıcı `SearchForm`'a girer, Almanya, Turistik Vize ve tarihlerini seçer.
+2. Butona basar basmaz React `handleSubmit` fonksiyonunu tetikler.
+3. Formdaki tüm veriler JSON (anahtar-değer) formatında paketlenir.
+4. Sistem, tarayıcıda tutulan `userId`'yi pakete ekler (Hangi kullanıcının botu olduğunu bilmek için).
+5. İstek, `http://localhost:8000/api/tasks/...` adresine fırlatılır.
+6. Backend (Python) bunu işler ve "Tamam botu başlattım" diye bir cevap dönerse, ekranda yeşil bir tik ile "Takip Başlatıldı" uyarısı çıkar. Eğer veriler eksikse kırmızı bir kutucukta hata sebebi (`toast.error`) gösterilir.
+
+---
+
+## 4. REACT TEMEL KAVRAMLARI VE HOOK'LAR
+
+Kodları okurken çok sık karşılaşacağınız React kelimeleri şunlardır:
+
+*   **`useState`**: Değişkenleri tutar ve değiştiklerinde ekranı günceller.
+    *   *Örn:* `const [loading, setLoading] = useState(false);` (Başlangıçta loading değeri yalandır. Butona basıldığında `setLoading(true)` dersek, React anında ekranı günceller ve butonu döndürür (loading animasyonu).
+*   **`useEffect`**: Sayfa veya bileşen yüklendiğinde "SADECE BİR KERE" (veya içindeki veri değiştiğinde) çalışan kod bloklarıdır. 
+    *   *Örn:* Sayfa ilk açıldığında `localStorage`'dan giriş yapılıp yapılmadığını kontrol eden kod her saniye çalışmaz, sadece sayfa ilk açıldığında `useEffect` sayesinde bir kere çalışır.
+*   **`useRouter`**: Kullanıcıyı sayfa sayfa gezdiren komuttur. (Örn: `router.push('/dashboard')` kodu, kullanıcıyı zorla dashboard klasörüne götürür.)
+
+---
+
+*Not: Bu sistem şu anda LocalStorage ile basit düzey bir kimlik yönetimi yapmaktadır. Sistemin daha da güvenli hale gelmesi için ileride "JWT Token" adı verilen gelişmiş bir kimlik doğrulama sistemine geçirilmesi tavsiye edilir.*

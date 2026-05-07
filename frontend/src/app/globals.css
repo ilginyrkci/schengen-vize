@@ -35,3 +35,23 @@ body {
   /* Scroll deneyimini iyileştirmek için */
   scroll-behavior: smooth;
 }
+
+/* --- KİŞİSELLEŞTİRİLMİŞ SCROLLBAR --- */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617; /* Sitenin koyu arka plan rengi */
+  border-left: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2); /* Emerald renginin transparan hali */
+  border-radius: 10px;
+  border: 2px solid #020617; /* Track ile arasına boşluk hissi verir */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.6); /* Üzerine gelince belirginleşen zümrüt rengi */
+}

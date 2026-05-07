@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from 'react-hot-toast'
 
 // burası config merkezimiz. Doğum tarihi ve Cinsiyet artık her ülkede standart.
 const countryRequirements = {
@@ -77,14 +78,20 @@ export default function SearchForm() {
     })
   }
 
+  // Form GÖNDER butonuna basıldığında tetiklenen ana fonksiyon
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault(); // Formun sayfayı yenilemesini (varsayılan davranışı) engeller
+
+    // Eğer kullanıcı ülke ve vize türü seçmediyse uyarı ver ve işlemi durdur
     if (!form.country || !form.type) {
-      alert("Lütfen ülke ve vize türünü seçiniz.");
+      toast.error("Lütfen ülke ve vize türünü seçiniz.");
       return;
     }
 
+    // Tarayıcıdan kullananın ID'sini alıyoruz (kimin için arama yaptığımızı bilmek adına)
+    const userId = localStorage.getItem("userId") || "1";
+
+    // Formdaki bilgileri backend'in anlayabileceği URL parametrelerine (query string) çeviriyoruz
     const queryParams = new URLSearchParams({
       country: form.country,
       start: form.startDate,
@@ -98,21 +105,26 @@ export default function SearchForm() {
       birthDate: form.birthDate,
       gender: form.gender,
       phone: form.phone,
-      email: form.email
+      email: form.email,
+      user_id: userId
     }).toString();
 
     try {
-      console.log("Backend tetikleniyor...");
+      console.log("Backend tetikleniyor..."); // F12 Konsola bilgi yazdırıyoruz
+      
+      // Backend'deki FastAPI sunucumuza, hazırladığımız URL ile İstek (GET) atıyoruz
       const response = await fetch(`http://localhost:8000/api/vize-sorgula?${queryParams}`);
-      const data = await response.json();
+      const data = await response.json(); // Gelen cevabı JSON formatına çevirip okuyoruz
 
+      // Eğer backend "success" döndürdüyse işlem başarılıdır
       if (data.status === "success") {
         console.log("Bot başlatıldı!");
-        alert(`${form.country.toUpperCase()} için tarama başlatıldı! Terminali kontrol et.`);
+        toast.success(`${form.country.toUpperCase()} için tarama başlatıldı! Terminali kontrol et.`);
       }
     } catch (error) {
+      // Sunucu çöktüyse, kapalıysa veya ağ bağlantısı yoksa hata fırlatıyoruz
       console.error("Bağlantı hatası:", error);
-      alert("Backend'e bağlanılamadı! Lütfen terminalde main.py'ın çalıştığından emin ol.");
+      toast.error("Backend'e bağlanılamadı! Lütfen terminalde main.py'ın çalıştığından emin ol.");
     }
   }
 
