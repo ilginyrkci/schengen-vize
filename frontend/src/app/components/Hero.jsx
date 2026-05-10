@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Hero() {
   return (
     <section className="relative max-w-7xl mx-auto px-6 pt-32 pb-24 text-center">
-      
+
       {/* 1. ARKA PLAN IŞIKLARI - En arkaya itildi (-z-20) */}
       <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-emerald-500/10 blur-[120px] rounded-full -z-20 animate-pulse pointer-events-none" />
       <div className="absolute top-10 right-1/4 w-[300px] h-[300px] bg-cyan-500/10 blur-[100px] rounded-full -z-20 pointer-events-none" />
@@ -39,10 +39,10 @@ export default function Hero() {
 
       {/* 4. BUTONLAR - En üst katmana çıkarıldı (z-[100]) */}
       <div className="relative z-[100] flex flex-col sm:flex-row items-center justify-center gap-5">
-        
+
         {/* Link içine 'prefetch' eklendi: Sayfayı önden yükler */}
         <Link href="/login" prefetch={true} className="w-full sm:w-auto block">
-          <button 
+          <button
             type="button"
             className="group relative w-full px-10 py-5 bg-emerald-500 text-[#0b1120] font-black uppercase tracking-widest text-xs rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-[0_15px_30px_rgba(16,185,129,0.3)] overflow-hidden cursor-pointer"
           >
@@ -50,7 +50,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
           </button>
         </Link>
-        
+
         <button className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-widest text-xs rounded-2xl transition-all backdrop-blur-md w-full sm:w-auto cursor-pointer">
           Nasıl Çalışır?
         </button>

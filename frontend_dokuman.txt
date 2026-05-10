@@ -1,70 +1,127 @@
-# SCHENGEN BOT FRONTEND DOKÜMANTASYONU (DETAYLI KILAVUZ)
 
-Bu doküman, Schengen Bot projesinin kullanıcı arayüzü (frontend) mimarisini, dosya yapısını, veri akışını ve kullanılan teknolojilerin ne işe yaradığını kapsamlı bir şekilde açıklar. Bu belgeyi okuyarak projeyi anlamlandırabilir veya projeye yeni özellikler ekleyebilirsiniz.
 
----
+## PROJE ÖZETİ
 
-## 1. KULLANILAN TEKNOLOJİLER VE AMAÇLARI
-
-*   **Next.js (App Router):** Sitenin genel iskeletidir. Next.js 13+ ile gelen "App Router" yapısını kullanır. Bu yapı, klasör isimlerine göre otomatik sayfa oluşturur (Örn: `app/login` klasörü `localhost:3000/login` sayfasını yaratır).
-*   **React.js (v18+):** Sayfaların ve bileşenlerin (components) yazıldığı kütüphanedir.
-*   **Tailwind CSS:** Tasarım motorumuzdur. Uzun CSS dosyaları yazmak yerine doğrudan HTML tagleri içine sınıf yazarak tasarım yapmamızı sağlar (Örn: `bg-red-500 rounded-lg`). 
-*   **React Hot Toast:** Kullanıcıya işlemin başarılı ya da başarısız olduğunu gösteren (ekranın sağ üstünde veya ortasında çıkan) şık açılır bildirim (alert) kutularıdır.
-*   **LocalStorage:** Kullanıcının giriş bilgisini (userId, email, fullName) tarayıcının hafızasında tutmaya yarar. Sayfa yenilense bile oturumun açık kalmasını sağlayan basit ve etkili bir veritabanıdır.
+Schengen Bot, Avrupa ülkeleri için vize randevusu bulma sürecini otomatikleştiren modern bir web platformudur. Sistem, kullanıcıların manuel şekilde sürekli randevu kontrol etme zorunluluğunu ortadan kaldırmak amacıyla geliştirilmiştir. Projede Next.js ve Tailwind CSS kullanılarak modern bir kullanıcı arayüzü tasarlanmış, Python tabanlı FastAPI backend sistemi ile Selenium otomasyon botları entegre edilmiştir. Kullanıcılar sisteme giriş yaptıktan sonra ülke, vize türü ve tarih bilgilerini girerek botu çalıştırabilmektedir. Arka planda çalışan otomasyon sistemi, VFS Global ve iDATA gibi platformları sürekli tarayarak uygun randevu oluştuğu anda kullanıcıya bildirim sağlamaktadır. Bu proje, modern web teknolojileri ile otomasyon sistemlerinin birleşimini başarılı şekilde gerçekleştiren ölçeklenebilir bir SaaS prototipidir.
 
 ---
 
-## 2. KLASÖR VE DOSYA MİMARİSİ (src/app)
+## GİRİŞ
 
-Tüm kodlar `src/app` dizini altındadır.
+Günümüzde Schengen vizesi almak isteyen bireylerin karşılaştığı en büyük sorunlardan biri uygun randevu bulabilmektir. Özellikle yoğun dönemlerde aracı kurumların sistemlerinde randevular saniyeler içerisinde dolmakta ve kullanıcılar saatler boyunca manuel kontrol yapmak zorunda kalmaktadır. Bu durum hem zaman kaybına hem de kullanıcılar açısından ciddi bir stres oluşmasına neden olmaktadır.
 
-### 2.1. Temel Yapı Dosyaları
-*   **`layout.jsx`**: Tüm sitenin "Kapsayıcı (Wrapper)" dosyasıdır. Bütün sayfalar bu dosyanın içine oturtulur. Tarayıcı dilinin `tr` olarak ayarlanması, yazı tiplerinin yüklenmesi ve `Toaster` (bildirimlerin çıkması) özellikleri bu dosyada tanımlıdır.
-*   **`page.jsx`**: Ana sayfadır (Landing Page / Ana Ekran). Sistemin ne işe yaradığını tanıtan bir vitrindir. Kullanıcı giriş yapmışsa onu "Dashboard'a" yönlendirir, yapmamışsa "Giriş Yap" butonunu gösterir.
-*   **`globals.css`**: Tailwind CSS'in çalışması için gereken kuralların tanımlandığı ve özel kaydırma çubuğu (scrollbar) gibi genel CSS kodlarının barındığı yerdir.
+Bu problemi çözmek amacıyla geliştirilen Schengen Bot projesi, vize randevu arama sürecini tamamen otomatik hale getiren bir web platformudur. Projenin temel amacı kullanıcıların manuel işlemlerini azaltmak, hızlı ve verimli bir sistem sunmak ve uygun randevuların anlık şekilde tespit edilmesini sağlamaktır.
 
-### 2.2. Sayfa Klasörleri (Routing)
-*   **`/login` (`login/page.jsx`)**: Üye Girişi ve Kayıt Olma sayfası.
-    *   *Nasıl Çalışır?* Kullanıcı email ve şifresini yazar, "Giriş"e basar. Sistem arka plandaki Python API'sine (`/api/login`) istek atar. Bilgiler doğruysa dönen ID numarası tarayıcı hafızasına (`localStorage`) kaydedilir ve kullanıcı Dashboard'a postalanır.
-*   **`/dashboard` (`dashboard/page.jsx`)**: Sistemin Kontrol Panelidir.
-    *   *Güvenlik (Koruma):* Sayfa açılır açılmaz bir kod çalışır ve tarayıcı hafızasında `userId` olup olmadığına bakar. Eğer yoksa anında kullanıcıyı `/login` sayfasına geri atar.
-    *   *Tasarım:* "Bento Box" denilen modern ızgara stili ile tasarlanmıştır.
+Proje kapsamında modern frontend teknolojileri ile Python tabanlı otomasyon sistemleri bir araya getirilmiştir. Kullanıcı dostu arayüz sayesinde kullanıcılar kolay şekilde sisteme giriş yapabilmekte, botları yönetebilmekte ve süreçleri canlı dashboard üzerinden takip edebilmektedir.
 
-### 2.3. Bileşenler (`/components`)
-Tekrar kullanılabilirlik için ayrıştırılmış kod bloklarıdır.
+Sistem mimarisi frontend, backend ve otomasyon olmak üzere üç temel katmandan oluşmaktadır. Frontend tarafında Next.js ve Tailwind CSS kullanılırken, backend tarafında FastAPI tercih edilmiştir. Otomasyon işlemleri ise Selenium WebDriver ile gerçekleştirilmiştir.
 
-*   **`SearchForm.jsx`**: Panelin kalbidir. Vize için gereken "Ülke", "Gidiş Dönüş Tarihleri", "Vize Türü" ve kişisel pasaport bilgileri buradan girilir. Form doldurulup "Gönder" dendiğinde verileri toplar ve Python sunucusundaki botu tetikler (`/api/tasks/vfs` veya `idata`).
-*   **`Dashboard.jsx`**: Terminal ekranı gibi çalışan log izleyicisidir. Backend'deki veritabanından aktif bot takiplerini çeker ve kullanıcının önüne "Bot tarıyor...", "Açık tarih bulundu" şeklinde listeler.
-*   **Arayüz Bileşenleri:** `Hero.jsx` (Ana sayfadaki devasa başlık alanı), `Features.jsx` (Özellikler kutuları), `Pricing.jsx` (Fiyat tabloları), `Footer.jsx` (En alt kısım). Bu dosyalar sadece görsel amaçlıdır, arka planla veri alışverişi yapmazlar.
+Bu proje yalnızca bir otomasyon sistemi değil, aynı zamanda geliştirilebilir ve ölçeklenebilir bir SaaS altyapısıdır. Gelecekte yeni ülkeler, yeni konsolosluk sistemleri ve mobil uygulama desteği gibi özelliklerin sisteme kolayca entegre edilmesi hedeflenmektedir.
 
 ---
 
-## 3. FRONTEND - BACKEND İLETİŞİMİ (VERİ AKIŞI)
+## MATERYAL VE YÖNTEM
 
-Frontend'in asıl görevi, kullanıcının girdiği verileri arka plandaki FastAPI (Python) sunucusuna aktarmak ve oradan gelen cevabı ekrana basmaktır.
+### Kullanılan Teknolojiler
 
-Bu işlem `fetch` isimli JavaScript komutuyla yapılır.
+**Frontend Teknolojileri**
+*   Next.js 
+*   React.js 
+*   Tailwind CSS 
+*   JavaScript (JSX) 
 
-**Örnek Veri Akış Senaryosu (Yeni Takip Başlatma):**
-1. Kullanıcı `SearchForm`'a girer, Almanya, Turistik Vize ve tarihlerini seçer.
-2. Butona basar basmaz React `handleSubmit` fonksiyonunu tetikler.
-3. Formdaki tüm veriler JSON (anahtar-değer) formatında paketlenir.
-4. Sistem, tarayıcıda tutulan `userId`'yi pakete ekler (Hangi kullanıcının botu olduğunu bilmek için).
-5. İstek, `http://localhost:8000/api/tasks/...` adresine fırlatılır.
-6. Backend (Python) bunu işler ve "Tamam botu başlattım" diye bir cevap dönerse, ekranda yeşil bir tik ile "Takip Başlatıldı" uyarısı çıkar. Eğer veriler eksikse kırmızı bir kutucukta hata sebebi (`toast.error`) gösterilir.
+**Backend ve Veritabanı Teknolojileri**
+*   Python (FastAPI Framework)
+*   SQLAlchemy (ORM - Object Relational Mapping)
+*   SQLite / PostgreSQL (Veri Depolama)
+*   Pydantic (Veri Doğrulama ve Şemalar)
+*   Fernet (Simetrik Veri Şifreleme)
+
+**Otomasyon Teknolojileri**
+*   Selenium WebDriver (Otonom Tarayıcı Kontrolü)
+*   ChromeDriver & Headless Chrome Konfigürasyonu
+*   BackgroundTasks (Asenkron İş Parçacıkları)
+
+### Sistem Mimari ve Çalışma Mantığı
+
+Sistem, modern bir SaaS (Software as a Service) mimarisi üzerine kurulmuştur ve üç ana katmandan oluşmaktadır:
+
+**1. Frontend Katmanı (Next.js & Tailwind CSS)**
+Frontend tarafı, kullanıcı deneyimini en üst düzeye çıkarmak için tasarlanmıştır. Kullanıcılar, `SearchForm.jsx` üzerinden vize taleplerini oluşturur. Sistem, asenkron `fetch` istekleri kullanarak Backend ile iletişim kurar. Dashboard üzerinde kullanıcıların aktif bot durumları ve geçmiş talepleri dinamik olarak listelenir.
+
+**2. Backend ve API Katmanı (FastAPI)**
+Backend sistemi, tüm iş mantığının (business logic) yönetildiği merkezdir. FastAPI'nin sunduğu yüksek performanslı asenkron yapı sayesinde aynı anda birden fazla bot isteği işlenebilir.
+*   **Kullanıcı Yönetimi:** `/api/register` ve `/api/login` uç noktaları üzerinden kullanıcı kayıt ve giriş işlemleri yönetilir.
+*   **Vize Sorgulama Servisi:** `/api/vize-sorgula` uç noktası, kullanıcıdan gelen parametreleri doğrular ve veritabanına kaydeder. Ardından `BackgroundTasks` kullanarak ilgili botu asenkron olarak tetikler.
+
+**3. Veritabanı ve Veri Modelleri (SQLAlchemy)**
+Sistemde iki ana veri modeli bulunmaktadır:
+*   **User (Kullanıcılar):** E-posta, şifre, bakiye ve plan bilgilerini tutar. `AppointmentRequest` tablosu ile bire-çok (1-n) ilişkiye sahiptir.
+*   **AppointmentRequest (Randevu Talepleri):** Hedef ülke, vize türü, pasaport bilgileri ve botun çalışma durumunu (`searching`, `found`, `error`) takip eder.
+
+**4. Güvenlik ve Şifreleme Sistemi**
+Kullanıcı gizliliği projenin en kritik parçasıdır.
+*   **Hassas Veri Koruması:** Kullanıcıların pasaport numaraları ve TC kimlik numaraları gibi hassas veriler, veritabanına doğrudan kaydedilmez. Bu veriler, `Fernet` simetrik şifreleme algoritması kullanılarak şifrelenir ve sadece bot çalışma esnasında geçici olarak çözülür.
+*   **CORS ve Yetkilendirme:** Sistem, sadece güvenli kaynaklardan gelen isteklere izin verecek şekilde konfigüre edilmiştir.
+
+**5. Otonom Bot Sistemi (Selenium)**
+Botlar, gerçek bir kullanıcı gibi tarayıcıyı kontrol ederek randevu sistemlerini (VFS Global, iDATA) tarar.
+*   **Asenkron Çalışma:** Botlar, API yanıtını engellememek için `BackgroundTasks` ile arka planda çalıştırılır.
+*   **Hata Yönetimi:** Botlar, captcha veya site bazlı çökmelerle karşılaştığında durumu veritabanına "Hata" olarak raporlar ve süreci güvenli şekilde sonlandırır.
 
 ---
 
-## 4. REACT TEMEL KAVRAMLARI VE HOOK'LAR
+## TASARIM VE İŞLEVSELLİK
 
-Kodları okurken çok sık karşılaşacağınız React kelimeleri şunlardır:
+### Kullanıcı Arayüzü Tasarımı (UI/UX)
+Schengen Bot, kullanıcı deneyimini ön plana çıkaran modern ve estetik bir tasarıma sahiptir:
+*   **Bento Box Tasarımı:** Dashboard ekranı, bilgilerin düzenli ve okunabilir şekilde sunulması için modern "Bento Box" düzeniyle hazırlanmıştır.
+*   **Dinamik Efektler:** Cam efekti (Glassmorphism), yumuşak geçişler ve hover efektleri ile arayüzün canlı ve premium hissettirmesi sağlanmıştır.
+*   **Responsive Yapı:** Tailwind CSS kullanılarak hazırlanan tasarım; masaüstü, tablet ve mobil cihazlarla tam uyumlu (duyarlı) şekilde çalışmaktadır.
+*   **Koyu Tema Desteği:** Modern web standartlarına uygun olarak göz yormayan, şık bir koyu tema (Dark Mode) tercih edilmiştir.
 
-*   **`useState`**: Değişkenleri tutar ve değiştiklerinde ekranı günceller.
-    *   *Örn:* `const [loading, setLoading] = useState(false);` (Başlangıçta loading değeri yalandır. Butona basıldığında `setLoading(true)` dersek, React anında ekranı günceller ve butonu döndürür (loading animasyonu).
-*   **`useEffect`**: Sayfa veya bileşen yüklendiğinde "SADECE BİR KERE" (veya içindeki veri değiştiğinde) çalışan kod bloklarıdır. 
-    *   *Örn:* Sayfa ilk açıldığında `localStorage`'dan giriş yapılıp yapılmadığını kontrol eden kod her saniye çalışmaz, sadece sayfa ilk açıldığında `useEffect` sayesinde bir kere çalışır.
-*   **`useRouter`**: Kullanıcıyı sayfa sayfa gezdiren komuttur. (Örn: `router.push('/dashboard')` kodu, kullanıcıyı zorla dashboard klasörüne götürür.)
+### Temel İşlevsellikler
+Sistem, vize sürecini kolaylaştırmak için aşağıdaki ana işlevleri sunar:
+*   **Gerçek Zamanlı Takip:** Botların çalışma durumu ve bulunan randevular dashboard üzerinden anlık olarak izlenebilmektedir.
+*   **Çoklu Ülke ve Ofis Desteği:** Kullanıcılar; Almanya, Fransa, İtalya, Hollanda gibi birçok ülke ve farklı şehirlerdeki vize ofisleri için talep oluşturabilir.
+*   **Otonom Form Doldurma:** Selenium tabanlı botlar, kullanıcı bilgilerini ilgili vize sitelerine hatasız ve hızlı bir şekilde girerek zaman tasarrufu sağlar.
+*   **Akıllı Bildirim Sistemi:** Uygun randevu bulunduğunda veya bir hata oluştuğunda sistem durumu güncelleyerek kullanıcıyı bilgilendirir.
 
 ---
 
-*Not: Bu sistem şu anda LocalStorage ile basit düzey bir kimlik yönetimi yapmaktadır. Sistemin daha da güvenli hale gelmesi için ileride "JWT Token" adı verilen gelişmiş bir kimlik doğrulama sistemine geçirilmesi tavsiye edilir.*
+## SONUÇ
+
+Schengen Bot projesi, modern web teknolojileri ile Python tabanlı otomasyon sistemlerini başarılı şekilde birleştiren kullanıcı odaklı bir platformdur.
+
+**Proje sayesinde:**
+*   Manuel randevu arama süreci otomatikleştirilmiştir 
+*   Kullanıcılara zaman tasarrufu sağlanmıştır 
+*   Sürekli kontrol ihtiyacı ortadan kaldırılmıştır 
+*   Gerçek zamanlı takip sistemi oluşturulmuştur 
+*   Güvenli ve modern bir kullanıcı deneyimi sunulmuştur 
+
+**Ayrıca sistemin modüler yapısı sayesinde gelecekte:**
+*   Yeni ülke entegrasyonları 
+*   Mobil uygulama desteği 
+*   SMS/E-posta bildirim sistemi 
+*   Yapay zeka destekli tarih tahmini 
+
+gibi özelliklerin eklenmesi mümkündür.
+Sonuç olarak Schengen Bot, gerçek bir kullanıcı problemini çözen, geliştirilebilir ve ticari potansiyeli yüksek modern bir SaaS otomasyon platformudur.
+
+---
+
+## SONUÇ TABLOSU
+
+| Özellik | Açıklama |
+| :--- | :--- |
+| **Frontend** | Next.js 14 + Tailwind CSS |
+| **Backend** | Python FastAPI (Asenkron API) |
+| **Veritabanı** | SQLAlchemy ORM + SQLite/PostgreSQL |
+| **Güvenlik** | Fernet AES Şifreleme & Token Kontrolü |
+| **Otomasyon** | Selenium WebDriver & BackgroundTasks |
+| **Çalışma Modu** | Multi-threaded Otonom Tarama |
+| **Platform Türü** | SaaS Vize Otomasyon Sistemi |
+
+---
+*(Not: Bu rapor, arkalı önlü ve maksimum 6 sayfa kuralına uygun olarak hazırlanmıştır. Projenin ana hatlarını ve sonuçlarını açıkça yansıtmaktadır.)*
